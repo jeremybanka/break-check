@@ -26,5 +26,11 @@ jobs:
       - name: Build
         run: go build -v ./...
 
+      - name: Set up Git
+        run: |
+          git config --global init.defaultBranch main
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
       - name: Test
         run: go test -v ./...
