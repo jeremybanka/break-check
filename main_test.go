@@ -19,6 +19,15 @@ func setupTestEnvironment(t *testing.T) {
 		t.Fatalf("Failed to create temp directory: %s", err)
 	}
 
+	buildCmd := exec.Command("go", "build", "-o", "break-check")
+	err = buildCmd.Run()
+	if err != nil {
+		t.Fatalf("Failed to build break-check: %s", err)
+	}
+
+	// Copy the binary to the test environment
+	os.Rename("break-check", filepath.Join(testDir, "break-check"))
+
 	// Change directory to the test environment
 	os.Chdir(testDir)
 
@@ -102,13 +111,6 @@ func TestBreakCheck(t *testing.T) {
 	err = os.WriteFile(srcFilePath, []byte(modifiedSrcContent), 0644)
 	if err != nil {
 		t.Fatalf("Failed to write modified src.js: %s", err)
-	}
-
-	// Build the break-check binary to execute
-	buildCmd := exec.Command("go", "build", "-o", "break-check")
-	err = buildCmd.Run()
-	if err != nil {
-		t.Fatalf("Failed to build break-check: %s", err)
 	}
 
 	// Run the break-check tool
