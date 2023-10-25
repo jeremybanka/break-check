@@ -30,6 +30,14 @@ jobs:
           git config --global user.name "Your Name"
           git config --global --add safe.directory /__w/break-check/break-check
 
+      - name: Environment Info
+        run: |
+          pwd
+          ls -al
+          git status
+          node -v
+          npm -v
+
       - name: Build
         run: go build -v ./...
 
