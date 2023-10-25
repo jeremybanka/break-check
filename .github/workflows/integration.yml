@@ -10,8 +10,11 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  Test:
+    name: Build and Test
     runs-on: ubuntu-latest
+    container:
+      image: node:lts
     steps:
       - uses: actions/checkout@v3
 
