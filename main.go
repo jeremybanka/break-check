@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -12,7 +11,7 @@ import (
 func getLatestTag() string {
 	out, err := exec.Command("git", "describe", "--tags", "--abbrev=0").Output()
 	if err != nil {
-		log.Println("Error fetching latest tag:", err)
+		fmt.Println("Error fetching latest tag:", err)
 		os.Exit(1)
 	}
 	return strings.TrimSpace(string(out))
@@ -31,7 +30,7 @@ func filterFilesByPattern(files []string, pattern string) ([]string, error) {
 	var matchedFiles []string
 
 	for _, file := range files {
-		log.Println("Checking file:", file)
+		fmt.Println("Checking file:", file)
 		out, err := exec.Command("grep", "-l", pattern, file).Output()
 		if err != nil {
 			if exitError, ok := err.(*exec.ExitError); ok && exitError.ExitCode() == 1 {
@@ -39,7 +38,7 @@ func filterFilesByPattern(files []string, pattern string) ([]string, error) {
 				continue
 			}
 			// An actual error occurred
-			log.Println("Error running grep:", err)
+			fmt.Println("Error running grep:", err)
 			return nil, err
 		}
 		matchedFiles = append(matchedFiles, strings.TrimSpace(string(out)))

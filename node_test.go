@@ -6,9 +6,28 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"io"
 )
 
 var testDir string
+
+// copyFile copies the source file to a destination.
+func copyFile(srcPath, destPath string) error {
+	srcFile, err := os.Open(srcPath)
+	if err != nil {
+			return err
+	}
+	defer srcFile.Close()
+
+	destFile, err := os.Create(destPath)
+	if err != nil {
+			return err
+	}
+	defer destFile.Close()
+
+	_, err = io.Copy(destFile, srcFile)
+	return err
+}
 
 // setupTestEnvironment sets up the test environment
 func setupTestEnvironment(t *testing.T) {
@@ -26,10 +45,17 @@ func setupTestEnvironment(t *testing.T) {
 	}
 
 	// Copy the binary to the test environment
-	os.Rename("break-check", filepath.Join(testDir, "break-check"))
+	// err = os.Rename("break-check", filepath.Join(testDir, "break-check"))
+	// t.Log(err)
+	err = copyFile("break-check", filepath.Join(testDir, "break-check"))
+	if err != nil {
+		t.Fatalf("Failed to copy break-check to test directory: %s", err)
+	}
+	os.Chmod(filepath.Join(testDir, "break-check"), 0755)
 
 	// Change directory to the test environment
 	os.Chdir(testDir)
+	
 
 	// Initialize a Git repository
 	exec.Command("git", "init").Run()
@@ -100,12 +126,16 @@ func TestBreakCheck(t *testing.T) {
 	setupTestEnvironment(t)
 	defer tearDownTestEnvironment(t)
 
+	t.Log("Running break-check...")
+
 	// Introduce a breaking change to src.js
 	srcFilePath := filepath.Join(testDir, "src.js")
 	srcContent, err := os.ReadFile(srcFilePath)
 	if err != nil {
 		t.Fatalf("Failed to read src.js: %s", err)
 	}
+
+	t.Log("Modifying src.js...")
 
 	modifiedSrcContent := strings.Replace(string(srcContent), `"publicMethodOutput"`, `"modifiedPublicMethodOutput"`, 1)
 	err = os.WriteFile(srcFilePath, []byte(modifiedSrcContent), 0644)
@@ -116,6 +146,9 @@ func TestBreakCheck(t *testing.T) {
 	// Run the break-check tool
 	cmd := exec.Command("./break-check", "--pattern", "Public API Test", "--testCmd", "npm test")
 	output, err := cmd.CombinedOutput()
+
+	// Check the error
+	t.Log(err)
 
 	if err == nil {
 		t.Fatalf("Expected break-check to report a breaking change, but it didn't.\nOutput: %s", output)
