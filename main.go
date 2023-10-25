@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -11,31 +12,26 @@ import (
 func getLatestTag() string {
 	out, err := exec.Command("git", "describe", "--tags", "--abbrev=0").Output()
 	if err != nil {
-		fmt.Println("Error fetching latest tag:", err)
+		log.Println("Error fetching latest tag:", err)
 		os.Exit(1)
 	}
 	return strings.TrimSpace(string(out))
 }
 
 func getTestsAtTag(tag string) ([]string, error) {
-	out, err := exec.Command("git", "ls-tree", "-r", tag, "--name-only").Output()
+	out, err := exec.Command("git", "ls-tree", "-r", tag, "--full-name", "--name-only").Output()
 	if err != nil {
 		return nil, err
 	}
 	files := strings.Split(strings.TrimSpace(string(out)), "\n")
-	var testFiles []string
-	for _, file := range files {
-		if strings.HasSuffix(file, "_test.go") {
-			testFiles = append(testFiles, file)
-		}
-	}
-	return testFiles, nil
+	return files, nil
 }
 
 func filterFilesByPattern(files []string, pattern string) ([]string, error) {
 	var matchedFiles []string
 
 	for _, file := range files {
+		log.Println("Checking file:", file)
 		out, err := exec.Command("grep", "-l", pattern, file).Output()
 		if err != nil {
 			if exitError, ok := err.(*exec.ExitError); ok && exitError.ExitCode() == 1 {
@@ -43,6 +39,7 @@ func filterFilesByPattern(files []string, pattern string) ([]string, error) {
 				continue
 			}
 			// An actual error occurred
+			log.Println("Error running grep:", err)
 			return nil, err
 		}
 		matchedFiles = append(matchedFiles, strings.TrimSpace(string(out)))
