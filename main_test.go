@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -90,5 +91,35 @@ func TestBreakCheck(t *testing.T) {
 	setupTestEnvironment(t)
 	defer tearDownTestEnvironment(t)
 
-	// TODO: Test the break-check tool
+	// Introduce a breaking change to src.js
+	srcFilePath := filepath.Join(testDir, "src.js")
+	srcContent, err := os.ReadFile(srcFilePath)
+	if err != nil {
+		t.Fatalf("Failed to read src.js: %s", err)
+	}
+
+	modifiedSrcContent := strings.Replace(string(srcContent), `"publicMethodOutput"`, `"modifiedPublicMethodOutput"`, 1)
+	err = os.WriteFile(srcFilePath, []byte(modifiedSrcContent), 0644)
+	if err != nil {
+		t.Fatalf("Failed to write modified src.js: %s", err)
+	}
+
+	// Build the break-check binary to execute
+	buildCmd := exec.Command("go", "build", "-o", "break-check")
+	err = buildCmd.Run()
+	if err != nil {
+		t.Fatalf("Failed to build break-check: %s", err)
+	}
+
+	// Run the break-check tool
+	cmd := exec.Command("./break-check", "--pattern", "Public API Test", "--testCmd", "npm test")
+	output, err := cmd.CombinedOutput()
+
+	if err == nil {
+		t.Fatalf("Expected break-check to report a breaking change, but it didn't.\nOutput: %s", output)
+	}
+
+	if !strings.Contains(string(output), "Breaking changes detected!") {
+		t.Errorf("Expected 'Breaking changes detected!' in output but got: %s", output)
+	}
 }
