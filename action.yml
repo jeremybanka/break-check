@@ -1,0 +1,12 @@
+name: "Break-Check"
+description: "A GitHub Action to detect breaking changes"
+inputs:
+  pattern:
+    description: "Search pattern for public API tests"
+    required: true
+  testCmd:
+    description: "Command to run public API tests"
+    required: true
+runs:
+  using: "docker"
+  image: "docker://jeremybanka/break-check" # Replace with your Docker image path
