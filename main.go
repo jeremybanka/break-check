@@ -59,12 +59,8 @@ func checkoutFromTag(tag string, files []string) error {
 	return cmd.Run()
 }
 
-func runTests(testCmd string, files []string) error {
-	fmt.Println("Running tests:", testCmd, files)
-	cmdArgs := strings.Fields(testCmd)
-	cmdArgs = append(cmdArgs, "--")
-	cmdArgs = append(cmdArgs, files...)
-	cmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
+func runTests(testCmd string) error {
+	cmd := exec.Command(testCmd)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
@@ -107,7 +103,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = runTests(testCmd, matchedFiles)
+	err = runTests(testCmd)
 	fmt.Println("Ran tests:", err)
 	if err != nil {
 		fmt.Println("\nBreaking changes detected!")
