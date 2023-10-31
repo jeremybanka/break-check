@@ -27,6 +27,8 @@ func getTestsAtTag(tag string) ([]string, error) {
 }
 
 func filterFilesByPattern(files []string, pattern string) ([]string, error) {
+
+	fmt.Println("Filtering files by pattern:", pattern)
 	var matchedFiles []string
 
 	for _, file := range files {
@@ -41,13 +43,16 @@ func filterFilesByPattern(files []string, pattern string) ([]string, error) {
 			fmt.Println("Error running grep:", err)
 			return nil, err
 		}
+		fmt.Println("Matched file:", string(out))
 		matchedFiles = append(matchedFiles, strings.TrimSpace(string(out)))
 	}
 	return matchedFiles, nil
 }
 
 func runTests(testCmd string, files []string) error {
+	fmt.Println("Running tests:", testCmd, files)
 	cmdArgs := strings.Fields(testCmd)
+	cmdArgs = append(cmdArgs, "--")
 	cmdArgs = append(cmdArgs, files...)
 	cmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
 	cmd.Stdout = os.Stdout
@@ -87,6 +92,7 @@ func main() {
 	}
 
 	err = runTests(testCmd, matchedFiles)
+	fmt.Println("Ran tests:", err)
 	if err != nil {
 		fmt.Println("\nBreaking changes detected!")
 		os.Exit(1)
