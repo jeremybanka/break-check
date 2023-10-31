@@ -10,5 +10,6 @@ COPY . .
 # Build your tool
 RUN go build -o break-check
 
-# Set the entrypoint to your tool
+# Set the entrypoint to your tool and provide a way to pass arguments
 ENTRYPOINT ["/app/break-check"]
+CMD ["--pattern", "", "--testCmd", ""]
