@@ -121,4 +121,35 @@ func TestBreakCheck(t *testing.T) {
 	if !strings.Contains(string(output), "Breaking changes detected!") {
 		t.Errorf("Expected 'Breaking changes detected!' in output but got: %s", output)
 	}
+
+	// (By definition, you can't fix a breaking change by updating the test.)
+
+	// Update the test to match the new output
+	t.Log("Updating public.test.js...")
+	publicTestFilePath := filepath.Join(testDir, "public.test.js")
+	publicTestContent, err := os.ReadFile(publicTestFilePath)
+	if err != nil {
+		t.Fatalf("Failed to read public.test.js: %s", err)
+	}
+
+	modifiedPublicTestContent := strings.Replace(string(publicTestContent), `"publicMethodOutput"`, `"modifiedPublicMethodOutput"`, 1)
+	err = os.WriteFile(publicTestFilePath, []byte(modifiedPublicTestContent), 0644)
+	if err != nil {
+		t.Fatalf("Failed to write modified public.test.js: %s", err)
+	}
+
+	// Run the break-check tool again
+	cmd = exec.Command("./break-check", "--pattern", "Public API Test", "--testCmd", "node --test")
+	output, err = cmd.CombinedOutput()
+
+	// Check the error
+	t.Log(err)
+
+	if err == nil {
+		t.Fatalf("Expected break-check to report breaking changes, but it did not!\nOutput: %s", output)
+	}
+
+	if !strings.Contains(string(output), "Breaking changes detected!") {
+		t.Errorf("Expected 'Breaking changes detected!' in output but got: %s", output)
+	}
 }

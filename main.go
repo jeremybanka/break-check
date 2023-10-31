@@ -49,6 +49,16 @@ func filterFilesByPattern(files []string, pattern string) ([]string, error) {
 	return matchedFiles, nil
 }
 
+func checkoutFromTag(tag string, files []string) error {
+	fmt.Println("Checking out files at tag:", tag)
+	cmdArgs := []string{"checkout", tag, "--"}
+	cmdArgs = append(cmdArgs, files...)
+	cmd := exec.Command("git", cmdArgs...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
 func runTests(testCmd string, files []string) error {
 	fmt.Println("Running tests:", testCmd, files)
 	cmdArgs := strings.Fields(testCmd)
@@ -87,7 +97,13 @@ func main() {
 	}
 
 	if len(matchedFiles) == 0 {
-		fmt.Println("No tests match the specified pattern.")
+		fmt.Println("No tests matched this pattern:", searchPattern)
+		os.Exit(2)
+	}
+
+	err = checkoutFromTag(tag, matchedFiles)
+	if err != nil {
+		fmt.Println("Error checking out files at tag:", err)
 		os.Exit(1)
 	}
 
