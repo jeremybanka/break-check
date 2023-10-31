@@ -44,3 +44,9 @@ jobs:
 
       - name: Test
         run: go test -v ./...
+
+      - name: Break Check
+        uses: ./action.yml
+        with:
+          pattern: "node_test.go"
+          testCmd: "go test -v ./..."
