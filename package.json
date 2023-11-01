@@ -1,0 +1,11 @@
+{
+  "name": "break-check",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "note": "changeset"
+  },
+  "devDependencies": {
+    "@changesets/cli": "2.26.2"
+  }
+}
