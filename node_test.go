@@ -86,7 +86,7 @@ func tearDownTestEnvironment(t *testing.T) {
 	os.RemoveAll(testDir) // remove the temporary directory
 }
 
-func TestBreakCheck(t *testing.T) {
+func TestWithNode(t *testing.T) {
 	setupTestEnvironment(t)
 	defer tearDownTestEnvironment(t)
 
