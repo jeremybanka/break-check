@@ -49,4 +49,4 @@ jobs:
         uses: ./
         with:
           pattern: "node_test.go"
-          testCmd: "go test -v ./..."
+          testCmd: "go test -v"

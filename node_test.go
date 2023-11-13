@@ -108,7 +108,7 @@ func TestWithNode(t *testing.T) {
 	}
 
 	// Run the break-check tool
-	cmd := exec.Command("./break-check", "--pattern", "Public API Test", "--testCmd", "node --test public.test.js")
+	cmd := exec.Command("./break-check", "--pattern", "public.test", "--testCmd", "node --test public.test.js")
 	output, err := cmd.CombinedOutput()
 
 	// Check the error
@@ -139,7 +139,7 @@ func TestWithNode(t *testing.T) {
 	}
 
 	// Run the break-check tool again
-	cmd = exec.Command("./break-check", "--pattern", "Public API Test", "--testCmd", "node --test public.test.js")
+	cmd = exec.Command("./break-check", "--pattern", "public.test", "--testCmd", "node --test public.test.js")
 	output, err = cmd.CombinedOutput()
 
 	// Check the error
