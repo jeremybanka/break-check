@@ -75,8 +75,12 @@ func main() {
 	flag.Parse()
 
 	if searchPattern == "" {
-		fmt.Println("Search pattern must be specified.")
-		os.Exit(1)
+		fromOs := os.Getenv("INPUT_PATTERN")
+		if fromOs != "" {
+			fmt.Println("Search pattern must be specified.")
+			os.Exit(1)
+		}
+		searchPattern = fromOs
 	}
 
 	tag := getLatestTag()
