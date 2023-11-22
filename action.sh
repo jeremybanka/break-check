@@ -4,6 +4,9 @@
 output=$(./break-check 2>&1)
 exit_code=$?
 
+# Log the output
+echo "$output"
+
 # Post a comment on the PR
 comment_body="Break-Check completed with exit code $exit_code\n\`\`\`\n$output\n\`\`\`"
 curl -s -H "Authorization: token $GITHUB_TOKEN" \
