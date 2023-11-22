@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Run the break-check binary and capture output
-output=$(./app/break-check 2>&1)
+output=$(./break-check 2>&1)
 exit_code=$?
 
 # Post a comment on the PR
