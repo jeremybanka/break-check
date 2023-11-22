@@ -40,7 +40,7 @@ func getLatestTag() string {
 	// }
 	out, err = exec.Command("git", "status").CombinedOutput()
 	if err != nil {
-		fmt.Println("Error fetching git status:", err)
+		fmt.Println("Error fetching git status:", err, string(out))
 		os.Exit(1)
 	} else {
 		fmt.Println("Git status:", string(out))
