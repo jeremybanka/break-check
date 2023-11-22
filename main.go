@@ -31,13 +31,13 @@ func getLatestTag() string {
 	} else {
 		fmt.Println("Git location:", string(out))
 	}
-	out, err = exec.Command("git", "rev-parse", "--show-toplevel").Output()
-	if err != nil {
-		fmt.Println("Error finding git root:", err)
-		os.Exit(1)
-	} else {
-		fmt.Println("Git root:", string(out))
-	}
+	// out, err = exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	// if err != nil {
+	// 	fmt.Println("Error finding git root:", err)
+	// 	os.Exit(1)
+	// } else {
+	// 	fmt.Println("Git root:", string(out))
+	// }
 	out, err = exec.Command("git", "status").CombinedOutput()
 	if err != nil {
 		fmt.Println("Error fetching git status:", err)
