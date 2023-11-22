@@ -4,6 +4,8 @@
 output=$(./break-check 2>&1)
 exit_code=$?
 
+# Log the exit code
+echo "Exit code: $exit_code"
 # Log the output
 echo "$output"
 
