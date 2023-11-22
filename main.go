@@ -9,7 +9,43 @@ import (
 )
 
 func getLatestTag() string {
-	out, err := exec.Command("git", "describe", "--tags", "--abbrev=0").Output()
+	// git status
+	out, err := exec.Command("pwd").Output()
+	if err != nil {
+		fmt.Println("Error getting current working directory:", err)
+		os.Exit(1)
+	} else {
+		fmt.Println("Current working directory:", string(out))
+	}
+	out, err = exec.Command("ls", "-la").Output()
+	if err != nil {
+		fmt.Println("Error listing files:", err)
+		os.Exit(1)
+	} else {
+		fmt.Println("Files:", string(out))
+	}
+	out, err = exec.Command("which", "git").Output()
+	if err != nil {
+		fmt.Println("Error finding git:", err)
+		os.Exit(1)
+	} else {
+		fmt.Println("Git location:", string(out))
+	}
+	// out, err = exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	// if err != nil {
+	// 	fmt.Println("Error finding git root:", err)
+	// 	os.Exit(1)
+	// } else {
+	// 	fmt.Println("Git root:", string(out))
+	// }
+	out, err = exec.Command("git", "status").CombinedOutput()
+	if err != nil {
+		fmt.Println("Error fetching git status:", err, string(out))
+		os.Exit(1)
+	} else {
+		fmt.Println("Git status:", string(out))
+	}
+	out, err = exec.Command("git", "describe", "--tags", "--abbrev=0").Output()
 	if err != nil {
 		fmt.Println("Error fetching latest tag:", err)
 		os.Exit(1)
@@ -27,24 +63,15 @@ func getTestsAtTag(tag string) ([]string, error) {
 }
 
 func filterFilesByPattern(files []string, pattern string) ([]string, error) {
-
 	fmt.Println("Filtering files by pattern:", pattern)
 	var matchedFiles []string
 
 	for _, file := range files {
 		fmt.Println("Checking file:", file)
-		out, err := exec.Command("grep", "-l", pattern, file).Output()
-		if err != nil {
-			if exitError, ok := err.(*exec.ExitError); ok && exitError.ExitCode() == 1 {
-				// grep didn't find a match, but that's okay.
-				continue
-			}
-			// An actual error occurred
-			fmt.Println("Error running grep:", err)
-			return nil, err
+		if strings.Contains(file, pattern) {
+			fmt.Println("Matched file:", file)
+			matchedFiles = append(matchedFiles, file)
 		}
-		fmt.Println("Matched file:", string(out))
-		matchedFiles = append(matchedFiles, strings.TrimSpace(string(out)))
 	}
 	return matchedFiles, nil
 }
@@ -60,7 +87,9 @@ func checkoutFromTag(tag string, files []string) error {
 }
 
 func runTests(testCmd string) error {
-	cmd := exec.Command(testCmd)
+	name := strings.Split(testCmd, " ")[0]
+	args := strings.Split(testCmd, " ")[1:]
+	cmd := exec.Command(name, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
@@ -71,12 +100,29 @@ func main() {
 	var testCmd string
 
 	flag.StringVar(&searchPattern, "pattern", "", "Search pattern for public API tests")
-	flag.StringVar(&testCmd, "testCmd", "go test", "Command to run tests")
+	flag.StringVar(&testCmd, "testCmd", "", "Command to run tests")
 	flag.Parse()
 
 	if searchPattern == "" {
-		fmt.Println("Search pattern must be specified.")
-		os.Exit(1)
+		searchPattern = os.Getenv("INPUT_PATTERN")
+		fmt.Println("Received pattern:", searchPattern, "from env var")
+		if searchPattern == "" {
+			fmt.Println("Search pattern must be specified.")
+			os.Exit(1)
+		}
+	} else {
+		fmt.Println("Received pattern:", searchPattern, "from flag")
+	}
+
+	if testCmd == "" {
+		testCmd = os.Getenv("INPUT_TESTCMD")
+		fmt.Println("Received testCmd:", testCmd, "from env var")
+		if testCmd == "" {
+			fmt.Println("Test command must be specified.")
+			os.Exit(1)
+		}
+	} else {
+		fmt.Println("Received testCmd:", testCmd, "from flag")
 	}
 
 	tag := getLatestTag()
@@ -102,6 +148,19 @@ func main() {
 		fmt.Println("Error checking out files at tag:", err)
 		os.Exit(1)
 	}
+
+	// debug logs
+	cwd, _ := os.Getwd()
+	fmt.Println("Current Working Directory:", cwd)
+	fmt.Println("Environment PATH:", os.Getenv("PATH"))
+	cmd := exec.Command("go", "version")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		fmt.Println("Error checking Go version:", err)
+		os.Exit(1)
+	}
+	// end debug logs
 
 	err = runTests(testCmd)
 	fmt.Println("Ran tests:", err)
