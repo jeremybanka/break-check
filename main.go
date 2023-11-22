@@ -9,7 +9,15 @@ import (
 )
 
 func getLatestTag() string {
-	out, err := exec.Command("git", "describe", "--tags", "--abbrev=0").Output()
+	// git status
+	out, err := exec.Command("git", "status").Output()
+	if err != nil {
+		fmt.Println("Error fetching git status:", err)
+		os.Exit(1)
+	} else {
+		fmt.Println("Git status:", string(out))
+	}
+	out, err = exec.Command("git", "describe", "--tags", "--abbrev=0").Output()
 	if err != nil {
 		fmt.Println("Error fetching latest tag:", err)
 		os.Exit(1)
