@@ -10,5 +10,6 @@ COPY . .
 # Build your tool
 RUN go build -o break-check
 
-# Set the entrypoint to your tool and provide a way to pass arguments
-ENTRYPOINT ["/app/break-check"]
+COPY action.sh /action.sh
+RUN chmod +x /action.sh
+ENTRYPOINT ["/action.sh"]
