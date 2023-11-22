@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy the go source files and other necessary files
 COPY . .
 
+# Copy the .git folder to the container
+COPY .git .git
+
 # Build your tool
 RUN go build -o break-check
 
