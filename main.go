@@ -10,12 +10,19 @@ import (
 
 func getLatestTag() string {
 	// git status
-	out, err := exec.Command("which", "git").Output()
+	out, err := exec.Command("pwd").Output()
 	if err != nil {
-		fmt.Println("Error fetching git path:", err)
+		fmt.Println("Error getting current working directory:", err)
 		os.Exit(1)
 	} else {
-		fmt.Println("Git path:", string(out))
+		fmt.Println("Current working directory:", string(out))
+	}
+	out, err = exec.Command("ls").Output()
+	if err != nil {
+		fmt.Println("Error listing files:", err)
+		os.Exit(1)
+	} else {
+		fmt.Println("Files:", string(out))
 	}
 	out, err = exec.Command("git", "status").Output()
 	if err != nil {
