@@ -24,6 +24,13 @@ func getLatestTag() string {
 	} else {
 		fmt.Println("Files:", string(out))
 	}
+	out, err = exec.Command("which", "git").Output()
+	if err != nil {
+		fmt.Println("Error finding git:", err)
+		os.Exit(1)
+	} else {
+		fmt.Println("Git location:", string(out))
+	}
 	out, err = exec.Command("git", "status").Output()
 	if err != nil {
 		fmt.Println("Error fetching git status:", err)
